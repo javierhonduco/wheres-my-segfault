@@ -6,8 +6,17 @@
 #include <unistd.h>
 #include <string.h>
 
-#define safe_puts(string) \
-  write(STDOUT_FILENO, (string "\n"), strlen(string)+1)
+void safe_puts(char *string) {
+  char string_with_newline[strlen(string)+9];
+  size_t string_size = strlen(string);
+
+  strcpy(string_with_newline, string);
+
+  string_with_newline[string_size] = '\n';
+  string_with_newline[string_size+1] = 0;
+
+  write(STDOUT_FILENO, string_with_newline, strlen(string_with_newline));
+}
 
 extern const char *__progname;
 
@@ -18,7 +27,7 @@ void print_stacktrace() {
   int frames = backtrace(callstack, stack_depth);
   char** strs = backtrace_symbols(callstack, frames);
   for(int i=0; i<frames; i++) {
-    puts(strs[i]);
+    safe_puts(strs[i]);
   }
 
   free(strs);
@@ -53,7 +62,7 @@ void segfault_handler(int signal, siginfo_t* siginfo, void* context) {
 
   dup2(old_stdout, STDOUT_FILENO);
 
-  puts(buffer);
+  safe_puts(buffer);
   asprintf(&result, "sh addr2line.sh %s", buffer);
   system(result);
 
