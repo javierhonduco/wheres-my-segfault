@@ -54,7 +54,7 @@ void segfault_handler(int signal, siginfo_t* siginfo, void* context) {
   dup2(old_stdout, STDOUT_FILENO);
 
   puts(buffer);
-  asprintf(&result, "sh addr2line.sh %s", buffer);
+  asprintf(&result, "sh print_line.sh %s", buffer);
   system(result);
 
   safe_puts("==> stacktrace");
